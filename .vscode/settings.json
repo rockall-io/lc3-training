@@ -1,0 +1,12 @@
+{
+    "cmake.debugConfig": {
+        "args": [
+            "--no-fork"
+        ]
+    },
+    "files.associations": {
+        "stdlib.h": "c",
+        "lc3vm.h": "c",
+        "munit.h": "c"
+    }
+}
