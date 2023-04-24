@@ -43,7 +43,7 @@ typedef struct VirtualMachine {
     Instructions instructions;
 } VirtualMachine;
 
-void handle_add_opcode(uint16_t instruction, Registers registers);
+void handle_add_opcode(uint16_t instruction, Registers *registers);
 
 bool is_bit_set(uint16_t instruction, uint16_t bit_position);
 

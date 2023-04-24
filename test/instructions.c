@@ -9,23 +9,31 @@ static MunitResult
 test_add(const MunitParameter params[], void* data) {
   // opcode: 0001
   // dr:      000
-  // sr1:     000
+  // sr1:     001
   // imm_bit:   0
   // unused:   00
-  // sr2:     000
+  // sr2:     010
   uint16_t add = 0b0001000001000010;
   Registers registers;
   registers.R1 = 2;
   registers.R2 = 3;
-  handle_add_opcode(add, registers);
+  handle_add_opcode(add, &registers);
   munit_assert_int(registers.R0, ==, 5);
   return MUNIT_OK;
 }
 
 static MunitResult
 test_add_imm(const MunitParameter params[], void* data) {
-  uint16_t add = 0b0001000000010000;
-  
+  // opcode: 0001
+  // dr:      000
+  // sr1:     010
+  // imm_bit:   1
+  // imm5:  00000
+  uint16_t add = 0b0001000010100000;
+  Registers registers;
+  registers.R2 = 3;
+  handle_add_opcode(add, &registers);
+  munit_assert_int(registers.R0, ==, 5);
   return MUNIT_OK;
 }
 
