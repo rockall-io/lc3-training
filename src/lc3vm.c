@@ -28,42 +28,84 @@ uint16_t get_value_from_register(Registers *registers, uint16_t register_number)
 }
 
 void set_register(Registers *registers, uint16_t register_number, uint16_t value)
-{   
+{
     switch (register_number)
     {
     case 0:
         registers->R0 = value;
+        break;
     case 1:
         registers->R1 = value;
+        break;
     case 2:
         registers->R2 = value;
+        break;
     case 3:
         registers->R3 = value;
+        break;
     case 4:
         registers->R4 = value;
+        break;
     case 5:
         registers->R5 = value;
+        break;
     case 6:
         registers->R6 = value;
+        break;
     case 7:
         registers->R7 = value;
+        break;
     }
 }
 
-void handle_add_opcode(uint16_t instruction, Registers *registers)
+void handle_instruction(uint16_t instruction, Registers *registers)
 {
-    bool is_imm_bit_set = is_bit_at_position_set(instruction, 5);
-    if (is_imm_bit_set)
+    uint16_t opcode = parse_opcode(instruction);
+    if (opcode == ADD)
     {
+        bool is_imm_bit_set = is_bit_set(instruction, 5);
+        if (is_imm_bit_set)
+        {
+            uint16_t dest_register = parse_destination_register(instruction);
+            uint16_t src1_register = parse_source_one_register(instruction);
+            uint16_t src1_value = get_value_from_register(registers, src1_register);
+            uint16_t immediate_value = get_immediate_value(instruction);
+            set_register(registers, dest_register, (src1_value + immediate_value));
+        }
+        else
+        {
+            uint16_t dest_register = parse_destination_register(instruction);
+            uint16_t src1_register = parse_source_one_register(instruction);
+            uint16_t src2_register = parse_source_two_register(instruction);
+            uint16_t src1_value = get_value_from_register(registers, src1_register);
+            uint16_t src2_value = get_value_from_register(registers, src2_register);
+            set_register(registers, dest_register, (src1_value + src2_value));
+        }
     }
-    else
+    else if (opcode == LEA)
     {
         uint16_t dest_register = parse_destination_register(instruction);
-        uint16_t src1_register = parse_source_one_register(instruction);
-        uint16_t src2_register = parse_source_two_register(instruction);
-        uint16_t src1_value = get_value_from_register(registers, src1_register);
-        uint16_t src2_value = get_value_from_register(registers, src2_register);
-        set_register(registers, dest_register, (src1_value + src2_value));
+
+    } else if (opcode == AND)
+    {
+        bool is_imm_bit_set = is_bit_set(instruction, 5);
+        if (is_imm_bit_set)
+        {
+            uint16_t dest_register = parse_destination_register(instruction);
+            uint16_t src1_register = parse_source_one_register(instruction);
+            uint16_t src1_value = get_value_from_register(registers, src1_register);
+            uint16_t immediate_value = get_immediate_value(instruction);
+            set_register(registers, dest_register, (src1_value & immediate_value));
+        }
+        else
+        {
+            uint16_t dest_register = parse_destination_register(instruction);
+            uint16_t src1_register = parse_source_one_register(instruction);
+            uint16_t src2_register = parse_source_two_register(instruction);
+            uint16_t src1_value = get_value_from_register(registers, src1_register);
+            uint16_t src2_value = get_value_from_register(registers, src2_register);
+            set_register(registers, dest_register, (src1_value & src2_value));
+        }
     }
 }
 
@@ -99,7 +141,7 @@ Memory load_program(char *file_name, Registers *registers)
 
 bool is_bit_set(uint16_t instruction, uint16_t bit_position)
 {
-    uint16_t shifted = instruction >> (bit_position - 1);
+    uint16_t shifted = instruction >> bit_position;
     return shifted & 1;
 }
 
@@ -130,4 +172,10 @@ uint16_t parse_opcode(uint16_t instruction)
 {
     uint16_t opcode = (instruction >> 12);
     return opcode;
+}
+
+uint16_t get_immediate_value(uint16_t instruction)
+{
+    uint16_t value = (instruction & 31);
+    return value;
 }

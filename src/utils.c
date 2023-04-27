@@ -1,11 +1,6 @@
 #include "utils.h"
 #include <string.h>
 
-bool is_bit_at_position_set(uint16_t value, uint16_t position)
-{
-    return (value >> (position - 1)) & 1;
-}
-
 bool prefix(const char *pre, const char *str)
 {
     return strncmp(pre, str, strlen(pre)) == 0;

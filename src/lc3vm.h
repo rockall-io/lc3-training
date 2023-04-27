@@ -19,12 +19,14 @@ typedef struct Memory {
 } Memory;
 
 typedef enum Instructions {
-    BR = 0,
     ADD = 1,
+    LEA = 7,
+    AND = 5,
+
+    BR = 0,
     LD = 2,
     ST = 3,
     JSR = 4,
-    AND = 5,
     LDR = 6,
     STR = 7,
     RTI = 8,
@@ -33,7 +35,6 @@ typedef enum Instructions {
     STI = 11,
     JMP = 12,
     RET = 12,
-    LEA = 14,
     TRAP = 15,
 } Instructions;
 
@@ -43,7 +44,7 @@ typedef struct VirtualMachine {
     Instructions instructions;
 } VirtualMachine;
 
-void handle_add_opcode(uint16_t instruction, Registers *registers);
+void handle_instruction(uint16_t instruction, Registers *registers);
 
 bool is_bit_set(uint16_t instruction, uint16_t bit_position);
 
@@ -54,5 +55,7 @@ uint16_t parse_source_one_register(uint16_t instruction);
 uint16_t parse_source_two_register(uint16_t instruction);
 
 uint16_t parse_opcode(uint16_t instruction);
+
+uint16_t get_immediate_value(uint16_t instruction);
 
 Memory load_program(char * file_name, Registers * registers);

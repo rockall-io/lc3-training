@@ -8,6 +8,6 @@
         "stdlib.h": "c",
         "lc3vm.h": "c",
         "munit.h": "c",
-        "compare": "c"
+        "utils.h": "c"
     }
 }
