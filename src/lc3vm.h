@@ -22,6 +22,7 @@ typedef enum Instructions {
     ADD = 1,
     LEA = 7,
     AND = 5,
+    NOT = 9,
 
     BR = 0,
     LD = 2,
@@ -30,7 +31,6 @@ typedef enum Instructions {
     LDR = 6,
     STR = 7,
     RTI = 8,
-    NOT = 9,
     LDI = 10,
     STI = 11,
     JMP = 12,

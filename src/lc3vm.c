@@ -106,6 +106,15 @@ void handle_instruction(uint16_t instruction, Registers *registers)
             uint16_t src2_value = get_value_from_register(registers, src2_register);
             set_register(registers, dest_register, (src1_value & src2_value));
         }
+    } else if (opcode == NOT)
+    {
+        uint16_t dest_register = parse_destination_register(instruction);
+        uint16_t src1_register = parse_source_one_register(instruction);
+        uint16_t src1_value = get_value_from_register(registers, src1_register);
+        set_register(registers, dest_register, (~src1_value));    
+    } else if (opcode == RET)
+    {
+        set_register(registers, registers->PC, registers->R7);    
     }
 }
 

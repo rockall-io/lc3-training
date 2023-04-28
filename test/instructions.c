@@ -71,14 +71,31 @@ test_and_imm(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_lea(const MunitParameter params[], void* data) {
-  // opcode:        1110
-  // dr:            011
-  // pcoffset9:     000000000
-  uint16_t lea = 0b111011001010000;
+test_not(const MunitParameter params[], void* data) {
+  // opcode:        1001
+  // dr:             001
+  // sr:             010
+  // notused:     000000
+  uint16_t not = 0b1001001010000000;
   Registers registers;
-  handle_instruction(lea, &registers);
-  munit_assert_int(registers.R0, ==, 5);
+  registers.R2 = 8;
+  handle_instruction(not, &registers);
+  // 8 = 0000000000000000 NOT 0000000000001000 = 1111111111110111
+  munit_assert_int(registers.R1, ==, 65527);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_ret(const MunitParameter params[], void* data) {
+  // opcode:        1100
+  // dr:             000
+  // sr:             111
+  // notused:     000000
+  uint16_t ret = 0b1100000111000000;
+  Registers registers;
+  registers.R7 = 255;
+  handle_instruction(ret, &registers);
+  munit_assert_int(registers.PC, ==, 255);
   return MUNIT_OK;
 }
 
@@ -124,7 +141,8 @@ static MunitTest test_suite_tests[] = {
   {(char*) "add_imm", test_add_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
   {(char*) "and", test_and, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
   {(char*) "and_imm", test_and_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "test_lea", test_lea, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+  {(char*) "not", test_not, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+  {(char*) "ret", test_ret, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 

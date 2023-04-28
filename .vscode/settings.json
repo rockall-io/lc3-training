@@ -8,6 +8,7 @@
         "stdlib.h": "c",
         "lc3vm.h": "c",
         "munit.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "stdio.h": "c"
     }
 }
