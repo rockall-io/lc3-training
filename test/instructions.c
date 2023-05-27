@@ -82,12 +82,11 @@ test_not(const MunitParameter params[], void* data) {
   // notused:     000000
   uint16_t not = 0b1001001010000000;
   Registers registers;
+  registers.R2 = 0b1001;
   registers.PC = 1044;
   Memory memory;
-  memory.memory[1045] = 'AAAAAA';
   handle_instruction(not, &registers, &memory);
-  // 8 = 0000000000000000 NOT 0000000000001000 = 1111111111110111
-  munit_assert_int(registers.R1, ==, 65527);
+  munit_assert_int(registers.R1, ==, 0b1111111111110110);
   return MUNIT_OK;
 }
 
