@@ -17,7 +17,8 @@ test_add(const MunitParameter params[], void* data) {
   Registers registers;
   registers.R1 = 2;
   registers.R2 = 3;
-  handle_instruction(add, &registers);
+  Memory memory;
+  handle_instruction(add, &registers, &memory);
   munit_assert_int(registers.R0, ==, 5);
   return MUNIT_OK;
 }
@@ -32,7 +33,8 @@ test_add_imm(const MunitParameter params[], void* data) {
   uint16_t add = 0b0001000010101000;
   Registers registers;
   registers.R2 = 3;
-  handle_instruction(add, &registers);
+  Memory memory;
+  handle_instruction(add, &registers, &memory);
   munit_assert_int(registers.R0, ==, 11);
   return MUNIT_OK;
 }
@@ -49,7 +51,8 @@ test_and(const MunitParameter params[], void* data) {
   Registers registers;
   registers.R1 = 2; //010
   registers.R2 = 3; //011
-  handle_instruction(and, &registers);
+  Memory memory;
+  handle_instruction(and, &registers, &memory);
   munit_assert_int(registers.R0, ==, 2);
   return MUNIT_OK;
 }
@@ -64,7 +67,8 @@ test_and_imm(const MunitParameter params[], void* data) {
   uint16_t and = 0b0101000001100110;
   Registers registers;
   registers.R1 = 2; //010
-  handle_instruction(and, &registers);
+  Memory memory;
+  handle_instruction(and, &registers, &memory);
   munit_assert_int(registers.R0, ==, 2);
   // 2 == 00010 & 6 = 00110 == 00010 i.e 2
   return MUNIT_OK;
@@ -78,8 +82,10 @@ test_not(const MunitParameter params[], void* data) {
   // notused:     000000
   uint16_t not = 0b1001001010000000;
   Registers registers;
-  registers.R2 = 8;
-  handle_instruction(not, &registers);
+  registers.PC = 1044;
+  Memory memory;
+  memory.memory[1045] = 'AAAAAA';
+  handle_instruction(not, &registers, &memory);
   // 8 = 0000000000000000 NOT 0000000000001000 = 1111111111110111
   munit_assert_int(registers.R1, ==, 65527);
   return MUNIT_OK;
@@ -94,7 +100,21 @@ test_ret(const MunitParameter params[], void* data) {
   uint16_t ret = 0b1100000111000000;
   Registers registers;
   registers.R7 = 255;
-  handle_instruction(ret, &registers);
+  Memory memory;
+  handle_instruction(ret, &registers, &memory);
+  munit_assert_int(registers.PC, ==, 255);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_ld(const MunitParameter params[], void* data) {
+  // opcode:        0010
+  // dr:             000
+  // pcoffset9     000001010
+  uint16_t ld = 0b0010000000001010;
+  Registers registers;
+  Memory memory;
+  handle_instruction(ld, &registers, &memory);
   munit_assert_int(registers.PC, ==, 255);
   return MUNIT_OK;
 }
@@ -143,6 +163,7 @@ static MunitTest test_suite_tests[] = {
   {(char*) "and_imm", test_and_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
   {(char*) "not", test_not, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {(char*) "ret", test_ret, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+  {(char*) "ld", test_ld, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 

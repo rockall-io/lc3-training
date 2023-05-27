@@ -58,7 +58,7 @@ void set_register(Registers *registers, uint16_t register_number, uint16_t value
     }
 }
 
-void handle_instruction(uint16_t instruction, Registers *registers)
+void handle_instruction(uint16_t instruction, Registers *registers, Memory *memory)
 {
     uint16_t opcode = parse_opcode(instruction);
     if (opcode == ADD)
@@ -115,6 +115,11 @@ void handle_instruction(uint16_t instruction, Registers *registers)
     } else if (opcode == RET)
     {
         set_register(registers, registers->PC, registers->R7);    
+    } else if (opcode == LD)
+    {
+        uint16_t dest_register = parse_destination_register(instruction);
+        uint16_t pcoffset9 = parse_pc_offset(instruction, registers->PC);
+        set_register(registers, dest_register, memory->memory[pcoffset9]);
     }
 }
 

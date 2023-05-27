@@ -44,7 +44,7 @@ typedef struct VirtualMachine {
     Instructions instructions;
 } VirtualMachine;
 
-void handle_instruction(uint16_t instruction, Registers *registers);
+void handle_instruction(uint16_t instruction, Registers *registers, Memory *memory);
 
 bool is_bit_set(uint16_t instruction, uint16_t bit_position);
 
