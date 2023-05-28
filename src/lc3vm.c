@@ -55,6 +55,9 @@ void set_register(Registers *registers, uint16_t register_number, uint16_t value
     case 7:
         registers->R7 = value;
         break;
+    case 8:
+        registers->PC = value;
+        break;
     }
 }
 
@@ -115,7 +118,7 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
         set_register(registers, dest_register, notted_value);
     } else if (opcode == RET)
     {
-        set_register(registers, registers->PC, registers->R7);    
+        set_register(registers, 8, registers->R7);    
     } else if (opcode == LD)
     {
         uint16_t dest_register = parse_destination_register(instruction);

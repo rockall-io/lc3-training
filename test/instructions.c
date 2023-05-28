@@ -112,9 +112,11 @@ test_ld(const MunitParameter params[], void* data) {
   // pcoffset9     000001010
   uint16_t ld = 0b0010000000001010;
   Registers registers;
+  registers.PC = 1327;
   Memory memory;
+  memory.memory[1337] = 0b0000000010101010;
   handle_instruction(ld, &registers, &memory);
-  munit_assert_int(registers.PC, ==, 255);
+  munit_assert_int(registers.R0, ==, 170);
   return MUNIT_OK;
 }
 
