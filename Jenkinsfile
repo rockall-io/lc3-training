@@ -12,7 +12,7 @@ pipeline {
         stage('test') {
             steps {
                 dir("build") {
-                    sh "lc3tests"
+                    sh "./lc3tests"
                 }
             }
         }
