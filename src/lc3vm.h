@@ -20,10 +20,9 @@ typedef struct Memory {
 
 typedef enum Instructions {
     ADD = 1,
-    LEA = 7,
+    LEA = 14,
     AND = 5,
     NOT = 9,
-
     BR = 0,
     LD = 2,
     ST = 3,
@@ -55,7 +54,9 @@ uint16_t parse_source_one_register(uint16_t instruction);
 uint16_t parse_source_two_register(uint16_t instruction);
 
 uint16_t parse_opcode(uint16_t instruction);
+uint16_t parse_trapvect_8(uint16_t instruction);
 
 uint16_t get_immediate_value(uint16_t instruction);
 
 Memory load_program(char * file_name, Registers * registers);
+void run_program(Memory *memory, Registers *registers);

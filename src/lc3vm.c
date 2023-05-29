@@ -64,6 +64,7 @@ void set_register(Registers *registers, uint16_t register_number, uint16_t value
 void handle_instruction(uint16_t instruction, Registers *registers, Memory *memory)
 {
     uint16_t opcode = parse_opcode(instruction);
+    printf("opcode is %d\n", opcode);
     if (opcode == ADD)
     {
         bool is_imm_bit_set = is_bit_set(instruction, 5);
@@ -87,9 +88,12 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
     }
     else if (opcode == LEA)
     {
+        //TODO implement this correctly as it's important to get first program working!
         uint16_t dest_register = parse_destination_register(instruction);
-
-    } else if (opcode == AND)
+        uint16_t pcoffset9 = parse_pc_offset(instruction, registers->PC);
+        set_register(registers, dest_register, pcoffset9);
+    }
+    else if (opcode == AND)
     {
         bool is_imm_bit_set = is_bit_set(instruction, 5);
         if (is_imm_bit_set)
@@ -109,21 +113,77 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
             uint16_t src2_value = get_value_from_register(registers, src2_register);
             set_register(registers, dest_register, (src1_value & src2_value));
         }
-    } else if (opcode == NOT)
+    }
+    else if (opcode == NOT)
     {
         uint16_t dest_register = parse_destination_register(instruction);
         uint16_t src1_register = parse_source_one_register(instruction);
         uint16_t src1_value = get_value_from_register(registers, src1_register);
         uint16_t notted_value = ~src1_value;
         set_register(registers, dest_register, notted_value);
-    } else if (opcode == RET)
+    }
+    else if (opcode == RET)
     {
-        set_register(registers, 8, registers->R7);    
-    } else if (opcode == LD)
+        set_register(registers, 8, registers->R7);
+    }
+    else if (opcode == LD)
     {
         uint16_t dest_register = parse_destination_register(instruction);
         uint16_t pcoffset9 = parse_pc_offset(instruction, registers->PC);
         set_register(registers, dest_register, memory->memory[pcoffset9]);
+    }
+    else if (opcode == LDI)
+    {
+    }
+    else if (opcode == TRAP)
+    {
+        uint16_t trapvect = parse_trapvect_8(instruction);
+        if(trapvect == 34) 
+        {
+            uint16_t starting_location = registers->R0;
+            char character = memory->memory[registers->R0];
+            if(character != 0)
+            {
+                do
+                {
+                    printf("%c", character);
+                    starting_location += 1;
+                    character = memory->memory[starting_location];
+                } while (character != 0);
+            }
+            printf("\n");            
+        }
+    }
+    else
+    {
+        //printf("*** WARNING ***\n\n");
+        //printf("    unhandled instruction %d - ", opcode);
+        //print_as_binary(opcode);
+        //printf("\n\n*** WARNING ***\n");
+    }
+}
+
+void print_as_binary(uint16_t opcode)
+{
+    int n, k, c;
+    for (c = 3; c >= 0; c--)
+    {
+        k = opcode >> c;
+
+        if (k & 1)
+            printf("1");
+        else
+            printf("0");
+    }
+}
+void run_program(Memory *memory, Registers *registers)
+{
+    while (true)
+    {
+        uint16_t instruction = memory->memory[registers->PC];
+        handle_instruction(instruction, registers, memory);
+        registers->PC = registers->PC + 1;
+        printf("PC is now %d\n", registers->PC);
     }
 }
 
@@ -166,7 +226,8 @@ bool is_bit_set(uint16_t instruction, uint16_t bit_position)
 uint16_t parse_pc_offset(uint16_t instruction, uint16_t program_counter)
 {
     uint16_t offset = instruction & 511;
-    return offset + program_counter;
+    uint16_t sign_extended = sign_extend(offset, 8);
+    return offset + (program_counter++);
 }
 
 uint16_t parse_destination_register(uint16_t instruction)
@@ -196,4 +257,10 @@ uint16_t get_immediate_value(uint16_t instruction)
 {
     uint16_t value = (instruction & 31);
     return value;
+}
+
+uint16_t parse_trapvect_8(uint16_t instruction)
+{
+    uint16_t trapvect = instruction & 255;
+    return trapvect;
 }

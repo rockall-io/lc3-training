@@ -121,6 +121,58 @@ test_ld(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
+test_ldi(const MunitParameter params[], void* data) {
+  // opcode:        1010
+  // dr:             001
+  // pcoffset9     000001010
+  uint16_t ld = 0b0010000000001010;
+  Registers registers;
+  registers.PC = 1327;
+  Memory memory;
+  memory.memory[1337] = 0b0000000010101010;
+  memory.memory[1337] = 0b0000000010101011;
+  handle_instruction(ld, &registers, &memory);
+  munit_assert_int(registers.R1, ==, 171);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_lea(const MunitParameter params[], void* data) {
+  // opcode:        1110
+  // dr:             001
+  // pcoffset9     000001010
+  uint16_t lea = 0b1110001000001010;
+  Registers registers;
+  registers.PC = 1337;
+  Memory memory;
+  handle_instruction(lea, &registers, &memory);
+  munit_assert_int(registers.R1, ==, 1347);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_trap(const MunitParameter params[], void* data) {
+  // opcode:        1111
+  // dr:            0000
+  // trapvect8     00100010
+  uint16_t trap = 0b1111000000100010;
+
+  Registers registers;
+  uint16_t start = 12488;
+  registers.R0 = start;
+
+  Memory memory;  
+  memory.memory[start] = 'H';
+  memory.memory[start + 1] = 'e';
+  memory.memory[start + 2] = 'l';
+  memory.memory[start + 3] = 'l';
+  memory.memory[start + 4] = 'o';
+
+  handle_instruction(trap, &registers, &memory);
+  return MUNIT_OK;
+}
+
+static MunitResult
 test_opcode_parsing(const MunitParameter params[], void* data) {
   uint16_t add = 0b0001000000000000;
   munit_assert_int(parse_opcode(add), ==, 1);
@@ -165,6 +217,9 @@ static MunitTest test_suite_tests[] = {
   {(char*) "not", test_not, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {(char*) "ret", test_ret, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {(char*) "ld", test_ld, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+  {(char*) "lea", test_lea, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
+  {(char*) "ldi", test_ldi, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+  {(char*) "trap", test_trap, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
   {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
 };
 

@@ -9,6 +9,8 @@
         "lc3vm.h": "c",
         "munit.h": "c",
         "utils.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "ostream": "c",
+        "typeinfo": "c"
     }
 }
