@@ -6,7 +6,8 @@
 #include "munit.h"
 
 static MunitResult
-test_add(const MunitParameter params[], void* data) {
+test_add(const MunitParameter params[], void *data)
+{
   // opcode: 0001
   // dr:      000
   // sr1:     001
@@ -24,7 +25,8 @@ test_add(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_add_imm(const MunitParameter params[], void* data) {
+test_add_imm(const MunitParameter params[], void *data)
+{
   // opcode: 0001
   // dr:      000
   // sr1:     010
@@ -40,7 +42,8 @@ test_add_imm(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_and(const MunitParameter params[], void* data) {
+test_and(const MunitParameter params[], void *data)
+{
   // opcode: 0101
   // dr:      000
   // sr1:     001
@@ -49,8 +52,8 @@ test_and(const MunitParameter params[], void* data) {
   // sr2:     010
   uint16_t and = 0b0101000001000010;
   Registers registers;
-  registers.R1 = 2; //010
-  registers.R2 = 3; //011
+  registers.R1 = 2; // 010
+  registers.R2 = 3; // 011
   Memory memory;
   handle_instruction(and, &registers, &memory);
   munit_assert_int(registers.R0, ==, 2);
@@ -58,7 +61,8 @@ test_and(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_and_imm(const MunitParameter params[], void* data) {
+test_and_imm(const MunitParameter params[], void *data)
+{
   // opcode: 0101
   // dr:      000
   // sr1:     001
@@ -66,7 +70,7 @@ test_and_imm(const MunitParameter params[], void* data) {
   // imm:   00110 == 6
   uint16_t and = 0b0101000001100110;
   Registers registers;
-  registers.R1 = 2; //010
+  registers.R1 = 2; // 010
   Memory memory;
   handle_instruction(and, &registers, &memory);
   munit_assert_int(registers.R0, ==, 2);
@@ -75,7 +79,8 @@ test_and_imm(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_not(const MunitParameter params[], void* data) {
+test_not(const MunitParameter params[], void *data)
+{
   // opcode:        1001
   // dr:             001
   // sr:             010
@@ -91,7 +96,8 @@ test_not(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_ret(const MunitParameter params[], void* data) {
+test_ret(const MunitParameter params[], void *data)
+{
   // opcode:        1100
   // dr:             000
   // sr:             111
@@ -106,7 +112,8 @@ test_ret(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_ld(const MunitParameter params[], void* data) {
+test_ld(const MunitParameter params[], void *data)
+{
   // opcode:        0010
   // dr:             000
   // pcoffset9     000001010
@@ -121,23 +128,25 @@ test_ld(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_ldi(const MunitParameter params[], void* data) {
+test_ldi(const MunitParameter params[], void *data)
+{
   // opcode:        1010
   // dr:             001
   // pcoffset9     000001010
-  uint16_t ld = 0b0010000000001010;
+  uint16_t ldi = 0b1010001000001010;
   Registers registers;
   registers.PC = 1327;
   Memory memory;
   memory.memory[1337] = 0b0000000010101010;
-  memory.memory[1337] = 0b0000000010101011;
-  handle_instruction(ld, &registers, &memory);
-  munit_assert_int(registers.R1, ==, 171);
+  memory.memory[1347] = 0b0000000011111111;
+  handle_instruction(ldi, &registers, &memory);
+  munit_assert_int(registers.R1, ==, 255);
   return MUNIT_OK;
 }
 
 static MunitResult
-test_lea(const MunitParameter params[], void* data) {
+test_lea(const MunitParameter params[], void *data)
+{
   // opcode:        1110
   // dr:             001
   // pcoffset9     000001010
@@ -151,7 +160,8 @@ test_lea(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_trap(const MunitParameter params[], void* data) {
+test_trap(const MunitParameter params[], void *data)
+{
   // opcode:        1111
   // dr:            0000
   // trapvect8     00100010
@@ -161,7 +171,7 @@ test_trap(const MunitParameter params[], void* data) {
   uint16_t start = 12488;
   registers.R0 = start;
 
-  Memory memory;  
+  Memory memory;
   memory.memory[start] = 'H';
   memory.memory[start + 1] = 'e';
   memory.memory[start + 2] = 'l';
@@ -173,10 +183,39 @@ test_trap(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_opcode_parsing(const MunitParameter params[], void* data) {
+test_jsr(const MunitParameter params[], void *data)
+{
+  // opcode:        0100
+  // flag:            1
+  // pcoffset11     10101010101
+  uint16_t jsr = 0b0100110101010101;
+  Memory memory;
+  Registers registers;
+  registers.PC = 1337;
+  handle_instruction(jsr, &registers, &memory);
+  munit_assert_int(registers.R7, ==, 1338);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_jssr(const MunitParameter params[], void *data)
+{
+  // opcode:        0100
+  // flag:            0
+  // pcoffset11     10101010101
+  uint16_t jssr = 0b0100010101010101;
+  Memory memory;
+  Registers registers;
+  handle_instruction(jssr, &registers, &memory);
+  return MUNIT_OK;
+}
+
+static MunitResult
+test_opcode_parsing(const MunitParameter params[], void *data)
+{
   uint16_t add = 0b0001000000000000;
   munit_assert_int(parse_opcode(add), ==, 1);
-  
+
   uint16_t and = 0b0101000000000000;
   munit_assert_int(parse_opcode(and), ==, 5);
 
@@ -184,14 +223,16 @@ test_opcode_parsing(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_destination_register_parsing(const MunitParameter params[], void* data) {
+test_destination_register_parsing(const MunitParameter params[], void *data)
+{
   uint16_t instruction = 0b1111010000000000;
   munit_assert_int(parse_destination_register(instruction), ==, 2);
   return MUNIT_OK;
 }
 
 static MunitResult
-test_pc_offset_parsing(const MunitParameter params[], void* data) {
+test_pc_offset_parsing(const MunitParameter params[], void *data)
+{
   uint16_t instruction = 0b1111010000000001;
   uint16_t PC = 0x3000;
   munit_assert_int(parse_pc_offset(instruction, PC), ==, 0x3001);
@@ -199,33 +240,34 @@ test_pc_offset_parsing(const MunitParameter params[], void* data) {
 }
 
 static MunitResult
-test_is_bit_set(const MunitParameter params[], void* data) {
+test_is_bit_set(const MunitParameter params[], void *data)
+{
   uint16_t instruction = 0b1000000100100000;
   munit_assert_true(is_bit_set(instruction, 5));
   return MUNIT_OK;
 }
 
 static MunitTest test_suite_tests[] = {
-  {(char*) "opcode_parsing", test_opcode_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "destination_register_parsing", test_destination_register_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "pc_offset_parsing", test_pc_offset_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "is_bit_set", test_is_bit_set, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "add", test_add, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "add_imm", test_add_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "and", test_and, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "and_imm", test_and_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "not", test_not, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "ret", test_ret, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "ld", test_ld, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "lea", test_lea, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}, 
-  {(char*) "ldi", test_ldi, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {(char*) "trap", test_trap, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-  {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}
-};
+    {(char *)"opcode_parsing", test_opcode_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"destination_register_parsing", test_destination_register_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"pc_offset_parsing", test_pc_offset_parsing, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"is_bit_set", test_is_bit_set, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"add", test_add, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"add_imm", test_add_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"and", test_and, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"and_imm", test_and_imm, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"not", test_not, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"ret", test_ret, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"ld", test_ld, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"lea", test_lea, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"ldi", test_ldi, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"trap", test_trap, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"jsr", test_jsr, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {(char *)"jssr", test_jssr, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL}};
 
 MunitSuite instruction_suite = {
-  "instructions/",
-  test_suite_tests,
-  NULL,
-  MUNIT_SUITE_OPTION_NONE
-};
+    "instructions/",
+    test_suite_tests,
+    NULL,
+    MUNIT_SUITE_OPTION_NONE};

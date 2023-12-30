@@ -64,7 +64,6 @@ void set_register(Registers *registers, uint16_t register_number, uint16_t value
 void handle_instruction(uint16_t instruction, Registers *registers, Memory *memory)
 {
     uint16_t opcode = parse_opcode(instruction);
-    printf("opcode is %d\n", opcode);
     if (opcode == ADD)
     {
         bool is_imm_bit_set = is_bit_set(instruction, 5);
@@ -134,6 +133,10 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
     }
     else if (opcode == LDI)
     {
+        uint16_t dest_register = parse_destination_register(instruction);
+        uint16_t pcoffset9 = parse_pc_offset(instruction, registers->PC);
+        uint16_t address = memory->memory[pcoffset9];
+        set_register(registers, dest_register, memory->memory[address]);
     }
     else if (opcode == TRAP)
     {
@@ -154,12 +157,25 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
             printf("\n");            
         }
     }
+    else if (opcode == JSR)
+    {
+        bool is_11th_bit_set = is_bit_set(instruction, 11);
+        if(is_11th_bit_set)
+        {
+            uint16_t pc_offset_11 = parse_pc_offset_11(instruction, registers->PC);
+            registers->PC = pc_offset_11;
+        } else 
+        {
+            uint16_t base_register =  parse_base_register(instruction);
+            printf(base_register);
+        }
+    }
     else
     {
-        //printf("*** WARNING ***\n\n");
-        //printf("    unhandled instruction %d - ", opcode);
-        //print_as_binary(opcode);
-        //printf("\n\n*** WARNING ***\n");
+        printf("*** WARNING ***\n\n");
+        printf("    unhandled instruction %d - ", opcode);
+        print_as_binary(opcode);
+        printf("\n\n*** WARNING ***\n");
     }
 }
 
@@ -183,7 +199,6 @@ void run_program(Memory *memory, Registers *registers)
         uint16_t instruction = memory->memory[registers->PC];
         handle_instruction(instruction, registers, memory);
         registers->PC = registers->PC + 1;
-        printf("PC is now %d\n", registers->PC);
     }
 }
 
@@ -230,6 +245,13 @@ uint16_t parse_pc_offset(uint16_t instruction, uint16_t program_counter)
     return offset + (program_counter++);
 }
 
+uint16_t parse_pc_offset_11(uint16_t instruction, uint16_t program_counter)
+{
+    uint16_t offset = instruction & 2047;
+    uint16_t sign_extended = sign_extend(offset, 11);
+    return offset + (program_counter++);
+}
+
 uint16_t parse_destination_register(uint16_t instruction)
 {
     uint16_t destination_register = (instruction >> 9) & 7;
@@ -241,10 +263,17 @@ uint16_t parse_source_one_register(uint16_t instruction)
     uint16_t source_register = (instruction >> 6) & 7;
     return source_register;
 }
+
 uint16_t parse_source_two_register(uint16_t instruction)
 {
     uint16_t source_register = instruction & 7;
     return source_register;
+}
+
+uint16_t parse_base_register(uint16_t instruction)
+{
+    uint16_t base_register = (instruction >> 6) & 7;
+    return base_register;
 }
 
 uint16_t parse_opcode(uint16_t instruction)

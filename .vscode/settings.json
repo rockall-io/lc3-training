@@ -12,5 +12,9 @@
         "stdio.h": "c",
         "ostream": "c",
         "typeinfo": "c"
+    },
+    "cmake.buildTask": true,
+    "cmake.environment": {
+        "CLICOLOR_FORCE": "1"
     }
 }

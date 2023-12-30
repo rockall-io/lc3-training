@@ -12,6 +12,17 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "C/C++: gcc build active file"
+        },
+        {
+            "name": "Launch the tests and debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/opt/disk1/sandbox/work/c/lc3/build/lc3tests",
+            "cwd": "/opt/disk1/sandbox/work/c/lc3",
+            "args": [],
+            "stopAtEntry": true,
+            "environment": [],
+            "externalConsole": false
         }
     ],
     "version": "2.0.0"

@@ -48,10 +48,12 @@ void handle_instruction(uint16_t instruction, Registers *registers, Memory *memo
 bool is_bit_set(uint16_t instruction, uint16_t bit_position);
 
 uint16_t parse_pc_offset(uint16_t instruction, uint16_t program_counter);
+uint16_t parse_pc_offset_11(uint16_t instruction, uint16_t program_counter);
 
 uint16_t parse_destination_register(uint16_t instruction);
 uint16_t parse_source_one_register(uint16_t instruction);
 uint16_t parse_source_two_register(uint16_t instruction);
+uint16_t parse_base_register(uint16_t instruction);
 
 uint16_t parse_opcode(uint16_t instruction);
 uint16_t parse_trapvect_8(uint16_t instruction);
